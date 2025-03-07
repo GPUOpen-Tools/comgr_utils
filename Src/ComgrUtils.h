@@ -1,5 +1,5 @@
 //============================================================================================
-// Copyright (c) 2018 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
 /// \author AMD Developer Tools
 /// \file
 /// \brief  This is a high level C++ interface of comgr utility functionality for tools.
