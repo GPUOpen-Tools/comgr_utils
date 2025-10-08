@@ -149,7 +149,7 @@ namespace amdt
         {
 #ifdef COMGR_DYNAMIC_LINKING
 #ifdef _WIN32
-            module_ = LoadLibrary(_T("amd_comgr_2.dll"));
+            module_ = LoadLibrary(_T("amd_comgr_3.dll"));
 #elif defined(__APPLE__)
             module_ = dlopen("libamd_comgr.1.dylib", RTLD_LAZY);
 #else
@@ -987,7 +987,20 @@ namespace amdt
         kComgrUtilsRaw,                 ///< Output the scan converter's internal mask, unchanged.
     };
 
-    /// Abstracted graphics-only register values.
+    /// @brief Abstracted compute-only register values.
+    struct ComputeRegistersInfo
+    {
+        bool     dynamic_vgpr_en;  ///< Flag indicating if dynamic VGPR allocation is enabled.
+        bool     tg_size_en;
+        bool     tgid_x_en;
+        bool     tgid_y_en;
+        bool     tgid_z_en;
+        uint32_t tidig_comp_cnt;
+        uint32_t x_interleave;
+        uint32_t y_interleave;
+    };
+
+    /// @brief Abstracted graphics-only register values.
     struct GraphicsRegisterInfo
     {
         /// How many LS VGPR components to load.
@@ -1235,7 +1248,8 @@ namespace amdt
         HWStageInfo*         stage_list;              ///< Stage list.
         RegisterData*        register_data_list;      ///< Register data list.
         ShaderFunctionInfo*  shader_function_list;    ///< Shader function list.
-        GraphicsRegisterInfo graphics_register_info;  ///< graphics register info.
+        GraphicsRegisterInfo graphics_register_info;  ///< Graphics register info.
+        ComputeRegistersInfo compute_registers_info;  ///< Compute register info.
     };
 
     /// @brief HSA kernel arguments info.
@@ -1677,6 +1691,13 @@ namespace amdt
         /// @param [in] pp_in            The metadata node.
         /// @return true if successful, false otherwise.
         bool ExtractPalMDRegisterInfo(Pipeline& md_pipeline_data, MDNode& pp_in);
+
+        /// @brief Helper function for extracting PAL metadata for compute register info.
+        ///
+        /// @param [in] md_pipeline_data The pipeline data.
+        /// @param [in] pp_in            The metadata node.
+        /// @return true if successful, false otherwise.
+        bool ExtractPalMDComputeRegisters(Pipeline& md_pipeline_data, MDNode& pp_in);
 
         /// @brief Helper function for extracting PAL metadata for graphics register info.
         ///

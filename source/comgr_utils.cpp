@@ -125,6 +125,15 @@ namespace amdt
     const char* kPalMdTagUserDataRegMap         = ".user_data_reg_map";
     const char* kPalMdTagUsesCps                = ".uses_cps";
     const char* kPalMdTagThreadGroupDimensions  = ".threadgroup_dimensions";
+    const char* kPalMdTagComputeRegisters       = ".compute_registers";
+    const char* kPalMdTagDynamicVgprEn          = ".dynamic_vgpr_en";
+    const char* kPalMdTagTgSizeEn               = ".tg_size_en";
+    const char* kPalMdTagTgidXEn                = ".tgid_x_en";
+    const char* kPalMdTagTgidYEn                = ".tgid_y_en";
+    const char* kPalMdTagTgidZEn                = ".tgid_z_en";
+    const char* kPalMdTagTidigCompCnt           = ".tidig_comp_cnt";
+    const char* kPalMdTagXInterleave            = ".x_interleave";
+    const char* kPalMdTagYInterleave            = ".y_interleave";
     // Graphics register metadata.
     const char* kPalMdTagGraphicsRegisters          = ".graphics_registers";
     const char* kPalMdTagAaCoverageToShaderSelect   = ".aa_coverage_to_shader_select";
@@ -803,6 +812,8 @@ namespace amdt
                     ppln_hash.Destroy();
                 }
             }
+
+            ExtractPalMDComputeRegisters(*pipeline_data, ppln);
 
             // Uses CPS (Continuation Passing Shader).
             MDNode uses_cps = ppln[kPalMdTagUsesCps];
@@ -2071,6 +2082,53 @@ namespace amdt
 
         stages.Destroy();
 
+        return true;
+    }
+
+    bool CodeObj::ExtractPalMDComputeRegisters(Pipeline &md_pipeline_data, MDNode &ppln)
+    {
+        MDNode compute_registers = ppln[kPalMdTagComputeRegisters];
+        auto &compute_registers_info = md_pipeline_data.compute_registers_info;
+
+        if (!compute_registers.IsValid())
+        {
+            ReportInvalidRequiredPalMDMapItem(compute_registers);
+            return false;
+        }
+
+        MDNode dynamic_vgpr_en = compute_registers[kPalMdTagDynamicVgprEn];
+        compute_registers_info.dynamic_vgpr_en = dynamic_vgpr_en.value<bool>();
+        dynamic_vgpr_en.Destroy();
+
+        MDNode tg_size_en = compute_registers[kPalMdTagTgSizeEn];
+        compute_registers_info.tg_size_en = tg_size_en.value<bool>();
+        tg_size_en.Destroy();
+
+        MDNode tgid_x_en = compute_registers[kPalMdTagTgidXEn];
+        compute_registers_info.tgid_x_en = tgid_x_en.value<bool>();
+        tgid_x_en.Destroy();
+
+        MDNode tgid_y_en = compute_registers[kPalMdTagTgidYEn];
+        compute_registers_info.tgid_y_en = tgid_y_en.value<bool>();
+        tgid_y_en.Destroy();
+
+        MDNode tgid_z_en = compute_registers[kPalMdTagTgidZEn];
+        compute_registers_info.tgid_z_en = tgid_z_en.value<bool>();
+        tgid_z_en.Destroy();
+
+        MDNode tidig_comp_cnt = compute_registers[kPalMdTagTidigCompCnt];
+        compute_registers_info.tidig_comp_cnt = tidig_comp_cnt.value<uint32_t>();
+        tidig_comp_cnt.Destroy();
+
+        MDNode x_interleave = compute_registers[kPalMdTagXInterleave];
+        compute_registers_info.x_interleave = x_interleave.value<uint32_t>();
+        x_interleave.Destroy();
+
+        MDNode y_interleave = compute_registers[kPalMdTagYInterleave];
+        compute_registers_info.y_interleave = y_interleave.value<uint32_t>();
+        y_interleave.Destroy();
+
+        compute_registers.Destroy();
         return true;
     }
 
