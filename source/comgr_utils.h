@@ -1,5 +1,5 @@
 //============================================================================================
-// Copyright (c) 2025 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2026 Advanced Micro Devices, Inc. All rights reserved.
 /// @author AMD Developer Tools
 /// @file
 /// @brief  This is a high level C++ interface of comgr utility functionality for tools.
@@ -149,11 +149,33 @@ namespace amdt
         {
 #ifdef COMGR_DYNAMIC_LINKING
 #ifdef _WIN32
-            module_ = LoadLibrary(_T("amd_comgr_3.dll"));
-#elif defined(__APPLE__)
-            module_ = dlopen("libamd_comgr.1.dylib", RTLD_LAZY);
+            // Resolve the path of the module (DLL or EXE) containing this code,
+            // so we can load amd_comgr_3.dll from the same directory.
+            HMODULE this_module = nullptr;
+            if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                                  reinterpret_cast<LPCTSTR>(&ComgrEntryPoints::init_instance_flag_),
+                                  &this_module))
+            {
+                TCHAR dll_path[MAX_PATH] = {0};
+                DWORD len                = GetModuleFileName(this_module, dll_path, MAX_PATH);
+                if (len > 0 && len < MAX_PATH)
+                {
+                    // Remove the DLL name to get the directory
+                    TCHAR* last_backslash = _tcsrchr(dll_path, _T('\\'));
+                    if (last_backslash)
+                    {
+                        *(last_backslash + 1) = _T('\0');
+                    }
+
+                    // Append the comgr DLL name
+                    _tcscat_s(dll_path, MAX_PATH, _T("amd_comgr_3.dll"));
+                    module_ = LoadLibrary(dll_path);
+                }
+            }
 #else
-            module_ = dlopen("libamd_comgr.so", RTLD_LAZY);
+            // Use bare filename so the dynamic linker's standard search order
+            // (including RPATH set on the consuming executable) can locate the library.
+            module_ = dlopen("libamd_comgr.so.3.0.0", RTLD_LAZY);
 #endif
 #define INIT_COMGR_ENTRY_POINT(func)                          \
     reinterpret_cast<decltype(func)*>(InitEntryPoint(#func)); \
@@ -991,13 +1013,13 @@ namespace amdt
     struct ComputeRegistersInfo
     {
         bool     dynamic_vgpr_en;  ///< Flag indicating if dynamic VGPR allocation is enabled.
-        bool     tg_size_en;
-        bool     tgid_x_en;
-        bool     tgid_y_en;
-        bool     tgid_z_en;
-        uint32_t tidig_comp_cnt;
-        uint32_t x_interleave;
-        uint32_t y_interleave;
+        bool     tg_size_en;       ///< TODO: tg_size_en.
+        bool     tgid_x_en;        ///< TODO: tgid_x_en.
+        bool     tgid_y_en;        ///< TODO: tgid_y_en.
+        bool     tgid_z_en;        ///< TODO: tgid_z_en.
+        uint32_t tidig_comp_cnt;   ///< TODO: tidig_comp_cnt.
+        uint32_t x_interleave;     ///< TODO: x_interleave.
+        uint32_t y_interleave;     ///< TODO: y_interleave.
     };
 
     /// @brief Abstracted graphics-only register values.
